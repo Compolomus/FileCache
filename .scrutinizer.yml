@@ -1,0 +1,12 @@
+filter:
+    excluded_paths:
+        - "extra/"
+        - "tests/"
+checks:
+    php: true
+coding_style:
+    php:
+        spaces:
+            around_operators:
+                concatenation: true
+build: true
