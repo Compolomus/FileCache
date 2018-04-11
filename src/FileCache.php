@@ -5,15 +5,14 @@ namespace Compolomus\Cache;
 use DateInterval;
 use DateTime;
 use FilesystemIterator;
+use InvalidArgumentException;
 use LogicException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
 use SplFileObject;
 
-#use Psr\SimpleCache\CacheInterface;
-
-class FileCache// implements CacheInterface
+class FileCache
 {
 
     private $cachePath;
@@ -37,11 +36,10 @@ class FileCache// implements CacheInterface
     {
         $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->cachePath,
             FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST);
+        $iterator = iterator_count($iterator) ? $iterator : [];
 
-        if (iterator_count($iterator)) {
-            foreach ($iterator as $item) {
-                $item->isDir() && !$item->isLink() ? rmdir($item->getPathname()) : unlink($item->getPathname());
-            }
+        foreach ($iterator as $item) {
+            $item->isDir() && !$item->isLink() ? rmdir($item->getPathname()) : unlink($item->getPathname());
         }
 
         return rmdir($this->cachePath);
@@ -153,17 +151,17 @@ class FileCache// implements CacheInterface
     }
 
     /**
-     * @param array $values
+     * @param array $keys
      * @param int $ttl
      * @throws InvalidArgumentException
      * @throws LogicException
      * @throws RuntimeException
      * @return bool
      */
-    public function setMultiple(array $values, $ttl = null): bool
+    public function setMultiple(array $keys, $ttl = null): bool
     {
         $status = [];
-        foreach ($values as $key => $value) {
+        foreach ($keys as $key => $value) {
             $status[$key] = $this->set($key, $value, $ttl);
         }
 
@@ -194,7 +192,8 @@ class FileCache// implements CacheInterface
                 break;
             case (null === $ttl):
             default:
-                $ttl = time() + 15;
+                // 1 Year
+                $ttl = time() + 31536000;
         }
 
         $data = new SplFileObject($file, 'wb');
