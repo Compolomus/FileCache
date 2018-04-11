@@ -11,6 +11,7 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
 use SplFileObject;
+use Traversable;
 
 class FileCache implements CacheInterface
 {
@@ -54,6 +55,7 @@ class FileCache implements CacheInterface
      */
     public function getMultiple($keys, $default = null)
     {
+        $this->isTraversable($keys);
         $values = [];
         foreach ($keys as $key) {
             $values[$key] = $this->get($key) ?: $default;
@@ -150,17 +152,18 @@ class FileCache implements CacheInterface
     }
 
     /**
-     * @param array $values
+     * @param array $keys
      * @param int $ttl
      * @throws InvalidArgumentException
      * @throws LogicException
      * @throws RuntimeException
      * @return bool
      */
-    public function setMultiple($values, $ttl = null)
+    public function setMultiple($keys, $ttl = null)
     {
+        $this->isTraversable($keys);
         $status = [];
-        foreach ($values as $key => $value) {
+        foreach ($keys as $key => $value) {
             $status[$key] = $this->set($key, $value, $ttl);
         }
 
@@ -206,11 +209,23 @@ class FileCache implements CacheInterface
      */
     public function deleteMultiple($keys)
     {
+        $this->isTraversable($keys);
         $status = [];
         foreach ($keys as $key) {
             $status[] = $this->delete($key);
         }
 
         return \in_array(true, $status, true) ? false : true;
+    }
+
+    /**
+     * @param $array
+     * @throws InvalidArgumentException
+     */
+    private function isTraversable($array)
+    {
+        if (!is_array($array) && !$array instanceof Traversable) {
+            throw new InvalidArgumentException('Array must be either of type array or Traversable');
+        }
     }
 }
