@@ -1,5 +1,5 @@
 {
-  "name": "compolomus/cache",
+  "name": "compolomus/FileCache",
   "description": "Lightweight cache",
   "license": "MIT",
   "keywords": [
