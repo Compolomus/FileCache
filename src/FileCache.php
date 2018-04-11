@@ -46,7 +46,7 @@ class FileCache implements CacheInterface
     }
 
     /**
-     * @param iterable $keys
+     * @param array $keys
      * @param mixed $default
      * @return array
      * @throws LogicException
@@ -62,6 +62,17 @@ class FileCache implements CacheInterface
         }
 
         return $values;
+    }
+
+    /**
+     * @param $array
+     * @throws InvalidArgumentException
+     */
+    private function isTraversable($array)
+    {
+        if (!\is_array($array) && !$array instanceof Traversable) {
+            throw new InvalidArgumentException('Array must be either of type array or Traversable');
+        }
     }
 
     /**
@@ -194,7 +205,8 @@ class FileCache implements CacheInterface
                 break;
             case (null === $ttl):
             default:
-                $ttl = time() + 15;
+                // 1 Year
+                $ttl = time() + 31536000;
         }
 
         $data = new SplFileObject($file, 'wb');
@@ -216,16 +228,5 @@ class FileCache implements CacheInterface
         }
 
         return \in_array(true, $status, true) ? false : true;
-    }
-
-    /**
-     * @param $array
-     * @throws InvalidArgumentException
-     */
-    private function isTraversable($array)
-    {
-        if (!is_array($array) && !$array instanceof Traversable) {
-            throw new InvalidArgumentException('Array must be either of type array or Traversable');
-        }
     }
 }
