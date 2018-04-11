@@ -45,7 +45,7 @@ class FileCache implements CacheInterface
     }
 
     /**
-     * @param array $keys
+     * @param iterable $keys
      * @param mixed $default
      * @return array
      * @throws LogicException
