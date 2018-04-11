@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 
 namespace Compolomus\Cache;
 
@@ -6,14 +6,13 @@ use DateInterval;
 use DateTime;
 use FilesystemIterator;
 use LogicException;
+use Psr\SimpleCache\CacheInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
 use SplFileObject;
 
-#use Psr\SimpleCache\CacheInterface;
-
-class FileCache// implements CacheInterface
+class FileCache implements CacheInterface
 {
 
     private $cachePath;
@@ -22,9 +21,9 @@ class FileCache// implements CacheInterface
      * FileCache constructor.
      * @param null|string $cachePath
      */
-    public function __construct(?string $cachePath = null)
+    public function __construct($cachePath = null)
     {
-        $this->cachePath = $cachePath ?? sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'cache';
+        $this->cachePath = null !== $cachePath ? $cachePath : sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'cache';
         is_dir($this->cachePath) ?: mkdir($this->cachePath, 0775, true);
     }
 
@@ -33,15 +32,13 @@ class FileCache// implements CacheInterface
      *
      * @return bool
      */
-    public function clear(): bool
+    public function clear()
     {
         $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->cachePath,
             FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST);
-
-        if (iterator_count($iterator)) {
-            foreach ($iterator as $item) {
-                $item->isDir() && !$item->isLink() ? rmdir($item->getPathname()) : unlink($item->getPathname());
-            }
+        $iterator = iterator_count($iterator) ? $iterator : [];
+        foreach ($iterator as $item) {
+            $item->isDir() && !$item->isLink() ? rmdir($item->getPathname()) : unlink($item->getPathname());
         }
 
         return rmdir($this->cachePath);
@@ -55,7 +52,7 @@ class FileCache// implements CacheInterface
      * @throws RuntimeException
      * @throws InvalidArgumentException
      */
-    public function getMultiple(array $keys, $default = null): array
+    public function getMultiple($keys, $default = null)
     {
         $values = [];
         foreach ($keys as $key) {
@@ -73,7 +70,7 @@ class FileCache// implements CacheInterface
      * @throws RuntimeException
      * @throws InvalidArgumentException
      */
-    public function get(string $key, $default = null)
+    public function get($key, $default = null)
     {
         $keyFile = $this->getFilename($key);
         $file = file_exists($keyFile) && $this->has($key) ? realpath($keyFile) : null;
@@ -87,7 +84,7 @@ class FileCache// implements CacheInterface
      * @return string
      * @throws InvalidArgumentException
      */
-    private function getFilename(string $key): string
+    private function getFilename($key)
     {
         $this->validateKey($key);
         $sha1 = sha1($key);
@@ -103,7 +100,7 @@ class FileCache// implements CacheInterface
      * @return bool
      * @throws InvalidArgumentException
      */
-    private function validateKey(string $key): bool
+    private function validateKey($key)
     {
         if (preg_match('#[{}()/\\\@:]#', $key)) {
             throw new InvalidArgumentException('Can\'t validate the specified key');
@@ -119,7 +116,7 @@ class FileCache// implements CacheInterface
      * @return bool
      * @throws InvalidArgumentException
      */
-    public function has(string $key): bool
+    public function has($key)
     {
         $filename = $this->getFilename($key);
         if (!file_exists($filename)) {
@@ -137,7 +134,7 @@ class FileCache// implements CacheInterface
      * @param $ttl int
      * @return bool
      */
-    private function isLife($ttl): bool
+    private function isLife($ttl)
     {
         return $ttl < time();
     }
@@ -147,7 +144,7 @@ class FileCache// implements CacheInterface
      * @return bool
      * @throws InvalidArgumentException
      */
-    public function delete($key): bool
+    public function delete($key)
     {
         return unlink($this->getFilename($key));
     }
@@ -160,7 +157,7 @@ class FileCache// implements CacheInterface
      * @throws RuntimeException
      * @return bool
      */
-    public function setMultiple(array $values, $ttl = null): bool
+    public function setMultiple($values, $ttl = null)
     {
         $status = [];
         foreach ($values as $key => $value) {
@@ -179,7 +176,7 @@ class FileCache// implements CacheInterface
      * @throws RuntimeException
      * @return bool
      */
-    public function set(string $key, $value, $ttl = null): bool
+    public function set($key, $value, $ttl = null)
     {
         $file = $this->getFilename($key);
         $dir = \dirname($file);
@@ -207,7 +204,7 @@ class FileCache// implements CacheInterface
      * @return bool
      * @throws InvalidArgumentException
      */
-    public function deleteMultiple(array $keys): bool
+    public function deleteMultiple($keys)
     {
         $status = [];
         foreach ($keys as $key) {
