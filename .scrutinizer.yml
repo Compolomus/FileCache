@@ -1,6 +1,6 @@
 filter:
     excluded_paths:
-        - "extra/"
+        - "examples/"
         - "tests/"
 checks:
     php: true
@@ -9,4 +9,11 @@ coding_style:
         spaces:
             around_operators:
                 concatenation: true
-build: true
+build:
+    tests:
+        override:
+          -
+            command: 'php ./vendor/bin/phpunit --coverage-clover=coverage-clover'
+            coverage:
+              file: 'coverage-clover'
+              format: 'php-clover'

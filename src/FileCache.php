@@ -188,7 +188,7 @@ class FileCache
             default:
                 // 1 Year
                 $ttl = time() + 31536000;
-            case \is_int($ttl) && $ttl > 0:
+            case (\is_int($ttl) && $ttl > 0):
                 $ttl += time();
                 break;
             case ($ttl instanceof DateInterval):
