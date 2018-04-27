@@ -6,6 +6,7 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Compolomus/FileCache/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Compolomus/FileCache/?branch=master)
 [![Code Climate](https://codeclimate.com/github/Compolomus/FileCache/badges/gpa.svg)](https://codeclimate.com/github/Compolomus/FileCache)
 [![Downloads](https://poser.pugx.org/compolomus/FileCache/downloads)](https://packagist.org/packages/compolomus/file-cache)
+[![Code Coverage](https://scrutinizer-ci.com/g/compolomus/FileCache/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/compolomus/FileCache/?branch=master)
 
 
 ## How to install
