@@ -104,7 +104,7 @@ class FileCache
     private function validateKey(string $key): bool
     {
         if (preg_match('#[{}()/\\\@:]#', $key)) {
-            throw new InvalidArgumentException('Can\'t validate the specified key');
+            throw new InvalidArgumentException('Can\'t validate the specified key (' . $key . ')');
         }
 
         return true;
@@ -147,7 +147,7 @@ class FileCache
      */
     public function delete($key): bool
     {
-        return unlink($this->getFilename($key));
+        return @unlink($this->getFilename($key));
     }
 
     /**
@@ -165,7 +165,7 @@ class FileCache
             $status[$key] = $this->set($key, $value, $ttl);
         }
 
-        return \in_array(true, $status, true) ? false : true;
+        return !\in_array(false, $status, true);
     }
 
     /**
@@ -184,16 +184,16 @@ class FileCache
         is_dir($dir) ?: mkdir($dir, 0775, true);
 
         switch ($ttl) {
-            case \is_int($ttl):
+            case (null === $ttl):
+            default:
+                // 1 Year
+                $ttl = time() + 31536000;
+            case \is_int($ttl) && $ttl > 0:
                 $ttl += time();
                 break;
             case ($ttl instanceof DateInterval):
                 $ttl = (new DateTime())->add($ttl)->getTimestamp();
                 break;
-            case (null === $ttl):
-            default:
-                // 1 Year
-                $ttl = time() + 31536000;
         }
 
         $data = new SplFileObject($file, 'wb');
@@ -213,6 +213,6 @@ class FileCache
             $status[] = $this->delete($key);
         }
 
-        return \in_array(true, $status, true) ? false : true;
+        return !\in_array(false, $status, true);
     }
 }
