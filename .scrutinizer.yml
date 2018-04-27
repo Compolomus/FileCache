@@ -1,6 +1,6 @@
 filter:
     excluded_paths:
-        - "examples/"
+        - "extra/"
         - "tests/"
 checks:
     php: true
