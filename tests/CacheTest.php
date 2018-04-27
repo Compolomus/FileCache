@@ -1,6 +1,6 @@
 <?php
 
-namespace Compolomus\Compomage\Tests;
+namespace Compolomus\Cache\Tests;
 
 use Compolomus\Cache\FileCache;
 use PHPUnit\Framework\TestCase;

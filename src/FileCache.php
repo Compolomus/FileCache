@@ -188,12 +188,12 @@ class FileCache
             default:
                 // 1 Year
                 $ttl = time() + 31536000;
+                break;
             case (\is_int($ttl) && $ttl > 0):
                 $ttl += time();
                 break;
             case ($ttl instanceof DateInterval):
                 $ttl = (new DateTime())->add($ttl)->getTimestamp();
-                break;
         }
 
         $data = new SplFileObject($file, 'wb');
